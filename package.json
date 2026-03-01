@@ -1,0 +1,46 @@
+{
+    "name": "phrasekit",
+    "version": "1.0.0",
+    "description": "A lightweight, zero-dependency TypeScript library for generating and managing secure word-based keys. Inspired by Mullvad VPN, but made more human.",
+    "author": "Aria Lume <thearialume@gmail.com> (https://github.com/thearialume)",
+    "license": "MIT",
+    "keywords": [
+        "passphrase",
+        "generator",
+        "privacy",
+        "security",
+        "eff-wordlist",
+        "anonymous-accounts"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/thearialume/phrasekit.git"
+    },
+    "bugs": {
+        "url": "https://github.com/thearialume/phrasekit/issues"
+    },
+    "homepage": "https://github.com/thearialume/phrasekit#readme",
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "rm -rf dist && bun run build.ts && tsc"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.0.0"
+    },
+    "peerDependencies": {
+        "typescript": ">=5.0.0"
+    }
+}
