@@ -89,18 +89,26 @@ class Phrase {
 
     get entropy(): number; // Calculation of bits of randomness (e.g., ~77.5 for 6 words).
 
-    toString(): string;       // Returns the phrase joined by spaces.
-    toJSON(): string[];       // Returns same output as this.words.
-    join(separator: string):  // Returns the phrase with a custom separator (e.g., "-").
-        string;
+    toString(): string; // Returns the phrase joined by spaces.
+    toJSON(): string[]; // Returns same output as this.words.
+    join(separator: string): string; // Returns the phrase with a custom separator (e.g., "-").
 
     hash(options: HashOptions): Promise; // Server-side only. Returns a hex-encoded hash. See below.
 }
 
 // Hashing options
 type HashOptions =
-    | { algorithm: "scrypt"; salt: string; cost?: number }  // cost = N param, default 16384
-    | { algorithm: "hmac-sha256"; salt: string };
+    | {
+          algorithm: "scrypt";
+          salt: string;
+          cost?: number;
+          r?: number;
+          p?: number;
+      }
+    | {
+          algorithm: "hmac-sha256";
+          salt: string;
+      };
 ```
 
 ## 🔐 Hashing
@@ -112,7 +120,7 @@ type HashOptions =
 const hash = await phrase.hash({
     algorithm: "scrypt",
     salt: "your-app-salt",
-    cost: 16384, // optional, default is 16384 (N param)
+    cost: 65536, // optional, default is 65536 (N param)
 });
 
 // ✅ HMAC-SHA256 (faster, good for low-latency lookups)
