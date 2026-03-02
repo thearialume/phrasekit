@@ -1,5 +1,11 @@
 export type HashOptions =
-    | { algorithm: "scrypt"; salt: string; cost?: number }
+    | {
+          algorithm: "scrypt";
+          salt: string;
+          cost?: number;
+          r?: number;
+          p?: number;
+      }
     | { algorithm: "hmac-sha256"; salt: string };
 
 export class Phrase {
@@ -44,6 +50,8 @@ export class Phrase {
         );
         const crypto = await dynamicImport("node:crypto");
 
+        // Defaults set according to OWASP Cheat Sheet
+        // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet
         switch (options.algorithm) {
             case "scrypt":
                 return new Promise((resolve, reject) => {
@@ -52,9 +60,10 @@ export class Phrase {
                         options.salt,
                         64,
                         {
-                            N: options.cost || 16384,
-                            r: 8,
-                            p: 5,
+                            N: options.cost || 65536, // 2^16 (64 MiB)
+                            r: options.r || 8,
+                            p: options.p || 2,
+                            maxmem: 134217728, // 128 * 1024 * 1024 (128 MiB)
                         },
                         (err: Error | null, derivedKey: Buffer) => {
                             if (err) reject(err);
