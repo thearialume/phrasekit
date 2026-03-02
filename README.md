@@ -17,27 +17,6 @@ I loved the privacy of **Mullvad VPN** and found their anonymous account system 
 - **Words are better than numbers:** They are easier to read, remember, and type, especially with autocomplete.
 - **Passphrase is a secret, not an identity:** Unlike Mullvad's static account IDs, here a passphrase is more like a "password without a username". It generates a unique Hash ID for your database, but you can allow users to rotate or reset their phrases if needed.
 - **Privacy by design:** No emails, phone numbers or names. Just words.
-- **No identity, no liability:** If there's nothing personal to store, there's nothing to leak, hand over, or protect.
-
-## 🔐 Privacy by Law, Not Just by Design
-
-Most auth systems collect personal data by default — emails, names, phone numbers.
-This creates legal obligations under **GDPR** and **152-FZ**: secure storage,
-breach reporting, and government handover on request.
-
-**phrasekit** eliminates this at the root. There's nothing to hand over and expose,
-because there's nothing to store.
-
-> ⚠️ **This library uses SHA-256 for hashing. This is intentional.
-> phrasekit is not designed for services that store personal data.
-> If your users have no identity — there's nothing sensitive to protect.
-> For traditional auth with personal data, use bcrypt/Argon2.**
-
-**Natural fit for:**
-
-- VPN and proxy services
-- Anonymous social platforms
-- Any service where privacy is a legal requirement
 
 ## 📦 Installation
 
@@ -58,18 +37,25 @@ import { phrasekit } from "phrasekit";
 const phrase = phrasekit.generate(6);
 console.log(phrase.toString()); // "glider confirm armhole swoop lacing lemon"
 
-// 2. Get a unique ID for your database (salted)
-const phraseHash = await phrase.hash("your-app-salt");
+// 2. Get a unique ID for your database (server-side only)
+const phraseHash = await phrase.hash({
+    algorithm: "scrypt",
+    salt: "your-app-salt",
+});
 
 // 3. Authenticate user input
 // Use .suggest() for your UI autocomplete
 const search = "app";
 const suggestions = phrasekit.suggest(search); // ['apple', 'apply', 'appoint', ...]
+
 try {
     const userPhrase = phrasekit.from(
         "glider confirm armhole swoop lacing lemon",
     );
-    const userPhraseHash = await userPhrase.hash("your-app-salt");
+    const userPhraseHash = await userPhrase.hash({
+        algorithm: "scrypt",
+        salt: "your-app-salt",
+    });
 
     if (phraseHash === userPhraseHash) {
         // Access granted!
@@ -81,15 +67,12 @@ try {
 
 ## 🌈 API Reference
 
-```javascript
+```typescript
 // Toolkit itself
 // The library exports a pre-instantiated `phrasekit` instance,
 // but you can also import the class to use a custom wordlist.
 class PhraseKit {
-    private readonly words;
-    private readonly wordSet;
-
-    constructor(customList?: string[]); // Can be created with custom wordList if needed
+    constructor(customList?: string[]); // Can be created with a custom wordList if needed
 
     generate(count?: number): Phrase; // Generates a cryptographically secure Phrase object. Defaults to 6 words.
 
@@ -103,18 +86,44 @@ class PhraseKit {
 // Result returned by toolkit
 class Phrase {
     readonly words: string[];
-    private readonly dictionarySize;
-
-    constructor(words: string[], dictionarySize: number);
 
     get entropy(): number; // Calculation of bits of randomness (e.g., ~77.5 for 6 words).
 
-    toString(): string; // Returns the phrase joined by spaces.
-    toJSON(): string[]; // Returns same output as this.words give
-    join(separator: string): string; //  Returns the phrase with a custom separator (e.g., -).
+    toString(): string;       // Returns the phrase joined by spaces.
+    toJSON(): string[];       // Returns same output as this.words.
+    join(separator: string):  // Returns the phrase with a custom separator (e.g., "-").
+        string;
 
-    hash(salt?: string): Promise<string>; // Returns a SHA-256 hex-encoded hash.
+    hash(options: HashOptions): Promise; // Server-side only. Returns a hex-encoded hash. See below.
 }
+
+// Hashing options
+type HashOptions =
+    | { algorithm: "scrypt"; salt: string; cost?: number }  // cost = N param, default 16384
+    | { algorithm: "hmac-sha256"; salt: string };
+```
+
+## 🔐 Hashing
+
+`phrase.hash()` is a **server-side only** method. Calling it in a browser environment will throw an error. This is by design — keeping the browser bundle lightweight and zero-dependency.
+
+```typescript
+// ✅ scrypt (recommended — memory-hard, slow to brute-force)
+const hash = await phrase.hash({
+    algorithm: "scrypt",
+    salt: "your-app-salt",
+    cost: 16384, // optional, default is 16384 (N param)
+});
+
+// ✅ HMAC-SHA256 (faster, good for low-latency lookups)
+const hash = await phrase.hash({
+    algorithm: "hmac-sha256",
+    salt: "your-app-salt",
+});
+
+// ❌ Throws in the browser
+await phrase.hash({ algorithm: "scrypt", salt: "..." });
+// Error: [PhraseKit] Hashing is disabled in the browser...
 ```
 
 ## 🤔 Wait, why not BIP39?
