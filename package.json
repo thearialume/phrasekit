@@ -1,6 +1,6 @@
 {
     "name": "phrasekit",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A lightweight, zero-dependency TypeScript library for generating and managing secure word-based keys. Inspired by Mullvad VPN, but made more human.",
     "author": "Aria Lume <thearialume@gmail.com> (https://github.com/thearialume)",
     "license": "MIT",
