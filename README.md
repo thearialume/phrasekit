@@ -17,6 +17,27 @@ I loved the privacy of **Mullvad VPN** and found their anonymous account system 
 - **Words are better than numbers:** They are easier to read, remember, and type, especially with autocomplete.
 - **Passphrase is a secret, not an identity:** Unlike Mullvad's static account IDs, here a passphrase is more like a "password without a username". It generates a unique Hash ID for your database, but you can allow users to rotate or reset their phrases if needed.
 - **Privacy by design:** No emails, phone numbers or names. Just words.
+- **No identity, no liability:** If there's nothing personal to store, there's nothing to leak, hand over, or protect.
+
+## 🔐 Privacy by Law, Not Just by Design
+
+Most auth systems collect personal data by default — emails, names, phone numbers.
+This creates legal obligations under **GDPR** and **152-FZ**: secure storage,
+breach reporting, and government handover on request.
+
+**phrasekit** eliminates this at the root. There's nothing to hand over and expose,
+because there's nothing to store.
+
+> ⚠️ **This library uses SHA-256 for hashing. This is intentional.
+> phrasekit is not designed for services that store personal data.
+> If your users have no identity — there's nothing sensitive to protect.
+> For traditional auth with personal data, use bcrypt/Argon2.**
+
+**Natural fit for:**
+
+- VPN and proxy services
+- Anonymous social platforms
+- Any service where privacy is a legal requirement
 
 ## 📦 Installation
 
