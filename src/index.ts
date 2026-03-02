@@ -1,54 +1,5 @@
 import { wordList } from "./wordlist";
-
-export class Phrase {
-    constructor(
-        public readonly words: string[],
-        private readonly dictionarySize: number,
-    ) {}
-
-    toString(): string {
-        return this.words.join(" ");
-    }
-
-    toJSON(): string[] {
-        return this.words;
-    }
-
-    join(separator: string): string {
-        return this.words.join(separator);
-    }
-
-    /**
-     * Calculates the entropy of the phrase in bits
-     */
-    get entropy(): number {
-        const bitsPerWord = Math.log2(this.dictionarySize);
-        return Math.round(bitsPerWord * this.words.length * 100) / 100;
-    }
-
-    /**
-     * Generates a SHA-256 hash of the phrase
-     * @param salt Optional string, but strongly recommended to make hash unique
-     * @returns Promise<string> aka hex-encoded hash
-     */
-    async hash(salt?: string): Promise<string> {
-        if (!salt) {
-            console.warn(
-                "[PhraseKit] hash() called without salt. " +
-                    "This makes the hash vulnerable to rainbow table attacks.",
-            );
-        }
-        const dataToHash = salt
-            ? `${this.toString()}:${salt}`
-            : this.toString();
-
-        const msgUint8 = new TextEncoder().encode(dataToHash);
-        const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-}
+import { Phrase } from "./phrase";
 
 export class PhraseKit {
     private readonly words: string[];
@@ -161,3 +112,5 @@ export class PhraseKit {
 }
 
 export const phrasekit = new PhraseKit();
+export { Phrase, type HashOptions } from "./phrase";
+export { wordList } from "./wordlist";
