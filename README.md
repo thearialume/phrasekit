@@ -43,10 +43,7 @@ const phraseHash = await phrase.hash("your-app-salt");
 // 3. Authenticate user input
 // Use .suggest() for your UI autocomplete
 const search = "app";
-const suggestions = phrasekit.suggest(search);
-// ['apple', 'apply', 'appoint', ...]
-
-// 4. Authenticate user input
+const suggestions = phrasekit.suggest(search); // ['apple', 'apply', 'appoint', ...]
 try {
     const userPhrase = phrasekit.from(
         "glider confirm armhole swoop lacing lemon",
